@@ -1,10 +1,22 @@
 const Users = require('../models/users.model');
+const Role = require('../models/role.model');
+
 const bcrypt = require('bcrypt');
 module.exports = {
     create: async (req, res) => {
         try {
             const users = await Users.create(req.body);
-
+            if(req.body.role_id) {
+                const role = await Role.findByPk(req.body.role_id);
+                if(!role) {
+                    return res.status(404).json({
+                        status: "error",
+                        message: "Role not found",
+                        data: []
+                    })
+                }
+                req.body.role = role.role_name;
+            }
             return res.status(201).json({
                 status: "success",
                 message: "User created successfully",
@@ -80,6 +92,18 @@ module.exports = {
                     message: "User not found",
                     data: []
                 })
+            }
+
+            if(req.body.role_id) {
+                const role = await Role.findByPk(req.body.role_id);
+                if(!role) {
+                    return res.status(404).json({
+                        status: "error",
+                        message: "Role not found",
+                        data: []
+                    })
+                }
+                req.body.role = role.role_name;
             }
 
             const updatedUsers = await Users.update(req.body, {

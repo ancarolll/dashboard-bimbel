@@ -1,5 +1,6 @@
 const sequelize = require('../../config/db');
 const { DataTypes } = require('sequelize');
+const UserClasses = require('./user_classes.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -19,13 +20,19 @@ const Users = sequelize.define('users', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    role_id: {
+        type: DataTypes.UUID,
+        references: {
+            model: 'roles',
+            key: 'id',
+        }
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     role: {
-        type: DataTypes.ENUM('admin', 'guru', 'kelas'),
-        defaultValue: 'guru',
+        type: DataTypes.STRING,
     }
 }, {
     tableName: 'users',
@@ -56,7 +63,9 @@ Users.prototype.validateUser = function (username, password) {
 
 // Generate JWT token
 Users.prototype.generateToken = function () {
-    return jwt.sign({ id: this.id, role: this.role}, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ id: this.id, role: this.role, role_id: this.role_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
+
+
 
 module.exports = Users;

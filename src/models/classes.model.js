@@ -1,5 +1,6 @@
 const sequelize = require('../../config/db');
 const { DataTypes } = require('sequelize');
+const UserClasses = require('./user_classes.model');
 
 const Classes = sequelize.define('classes', {
     id: {
@@ -8,18 +9,21 @@ const Classes = sequelize.define('classes', {
         allowNull: false,
         primaryKey: true,
     },
-    classs_name: {
+    class_name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    class_password: {
-        type: DataTypes.STRING,
+    is_active: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
     },
 }, {
     tableName: 'classes',
     timestamps: true,
 });
+
+Classes.belongsToMany(require('./users.model'), { through: UserClasses, foreignKey: 'class_id' });
 
 
 module.exports = Classes;

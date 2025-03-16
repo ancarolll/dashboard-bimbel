@@ -18,7 +18,8 @@ router.use('/uploads', require('./route/uploads.route'));
 router.use('/users', require('./route/users.route'));
 router.use('/auth', require('./route/auth.route'));
 router.use('/menu', require('./route/menu.route'));
-router.use('/dashboard', require('./route/dashboard.route'))
+router.use('/dashboard', require('./route/dashboard.route'));
+router.use('/role', require('./route/role.route'));
 
 
 module.exports = router;

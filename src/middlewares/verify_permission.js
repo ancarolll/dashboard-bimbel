@@ -19,7 +19,7 @@ const verifyPermission = async (req, res, next) => {
 
         const menuPermission = await MenuPermission.findOne({
             where: {
-                user_id: req.user.id,
+                role_id: req.user.role_id,
                 permission_action: action
             },
             include: [
@@ -32,9 +32,11 @@ const verifyPermission = async (req, res, next) => {
             ]
         });
 
-        // console.log(menuPermission)
-
-        if (!menuPermission) return res.status(403).send('Permission denied');
+        if (!menuPermission) return res.status(403).json({
+            status: 'failed',
+            message: 'Access denied',
+            data: []
+        });
         next();
     } catch (error) {
         console.log(error);

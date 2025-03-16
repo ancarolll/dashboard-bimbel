@@ -8,9 +8,6 @@ module.exports = {
                     username: req.body.username
                 }
             });
-
-            console.log(user);
-
             if(!user) {
                 return res.json({
                     status: "error",

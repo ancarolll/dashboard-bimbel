@@ -8,10 +8,10 @@ const MenuPermission = sequelize.define('menu_permissions', {
         allowNull: false,
         primaryKey: true,
     },
-    user_id: {
+    role_id: {
         type: DataTypes.UUID,
         references: {
-            model: 'users',
+            model: 'roles',
             key: 'id'
         }
     },

@@ -1,4 +1,5 @@
 const Students = require('../models/students.model');
+const Op = require('sequelize').Op;
 const xlxs = require('xlsx');
 
 module.exports = {
@@ -21,13 +22,12 @@ module.exports = {
     },
     import: async (req, res) => {
         try {
-            const {
-                file
-            } = req.files;
+            console.log(req.file)
+            const file = req.file;
             const data = await new Promise((resolve, reject) => {
                 const workbook = xlxs.readFile(file.path);
                 const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = xlsx.utils.sheet_to_json(sheet);
+                const jsonData = xlxs.utils.sheet_to_json(sheet);
                 resolve(jsonData);
             });
             const students = data.map(student => {
@@ -36,7 +36,8 @@ module.exports = {
                     class_id: student.class_id,
                     no_id: student.no_id,
                     start_date: student.start_date,
-                    end_date: student.end_date
+                    end_date: student.end_date,
+                    status: student.status
                 }
             });
             const createdStudents = await Students.bulkCreate(students);
@@ -56,8 +57,31 @@ module.exports = {
     },
     read: async (req, res) => {
         try {
-            const student = await Students.findAll({});
-            if (student.length <= 0) {
+            const {
+                page,
+                limit,
+                sort,
+                order,
+                search
+            } = req.query;
+            const options = {
+                page: parseInt(page) || 1,
+                limit: parseInt(limit) || 10,
+                order: [
+                    [sort, order]
+                ]
+            };
+            if (search) {
+                options.where = {
+                    name: {
+                        [Op.like]: `%${search}%`
+                    }
+                };
+            }
+            const students = await Students.findAndCountAll(options);
+            
+            // const student = await Students.findAll({where: {is_active: true}});
+            if (students.length <= 0) {
                 return res.status(404).json({
                     status: "error",
                     message: "Student not found",
@@ -68,7 +92,7 @@ module.exports = {
             return res.status(200).json({
                 status: "success",
                 message: "Student retrieved successfully",
-                data: student
+                data: students
             });
         } catch (error) {
             console.log(error);
@@ -147,7 +171,7 @@ module.exports = {
                     data: []
                 });
             }
-            await student.destroy();
+            await student.update({is_active: false});
             return res.status(200).json({
                 status: "success",
                 message: "Student deleted successfully",

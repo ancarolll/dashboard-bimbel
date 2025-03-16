@@ -1,9 +1,9 @@
-const Classes = require('../models/classess.model');
+const Classes = require('../models/classes.model');
 
 module.exports = {
     read: async (req, res) => { 
         try {
-            const classes = await Classes.findAll({});
+            const classes = await Classes.findAll({where: {is_active: true}});
             if(classes.length <= 0) {
                 return res.status(404).json({
                     status: "error",
@@ -112,7 +112,7 @@ module.exports = {
                 })
             }
 
-            await classes.destroy();
+            await classes.update({is_active: false});
             return res.status(200).json({
                 status: "success",
                 message: "Classes deleted successfully",
